@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  #todo password generator box, have it a run once, build a password to be used my databases.
+  #generic box for running commands that (such as NPM) that I may not want to run in the host system (such as to get latest vue.js and copy it over
+  generic_box:
+    container_name: generic_box
+    image: php:8.0-apache
+    restart: unless-stopped
+    ports:
+      - '6370:6370'
+    networks:
+      - app-network
+    volumes: 
+      - ./generic_box:/app
+  database-mysql:
+    image: mysql:latest
+    container_name: mysql
+    # NOTE: use of "mysql_native_password" is not recommended: https://dev.mysql.com/doc/refman/8.0/en/upgrading-from-previous-series.html#upgrade-caching-sha2-password
+    # (this is just an example, not intended to be a production configuration)
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+    networks:
+      - app-network
+    ports:
+      - '3306:3306'
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+  database-postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: laravel_docker
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    ports:
+      - '5432:5432'
+  php-laravel-apache:
+    container_name: php-laravel-apache
+    build:
+      context: ./php
+    ports:
+        - '8080:80'
+    networks:
+      - app-network
+    volumes:
+      - ./php_laravel_src:/var/www/docked
+      - ./apache/default.conf:/etc/apache2/sites-enabled/000-default.conf
+      #- laravel_modules:/var/www/docked/vendor
+    depends_on:
+      - "setup_box"
+  vuejs:
+    container_name: vuejs
+    build:
+      context: ./vuejs
+    ports:
+      - '8081:8080'
+    volumes:
+      - ./vuejs_src:/app
+      #- vuejs_modules:/app/node_modules
+    environment: 
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - "setup_box"
+  cache:
+    container_name: redis
+    image: redis:6.2-alpine
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    networks:
+      - app-network
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes: 
+      - cache:/data
+volumes:
+  cache:
+    driver: local
+  vuejs_modules:
+    driver: local
+  laravel_modules:
+    driver: local
+networks:
+  app-network:
+    driver: "bridge"
