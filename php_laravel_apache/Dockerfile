@@ -27,7 +27,6 @@ RUN chown root:root /usr/sbin/cron
 RUN cp /usr/share/zoneinfo/US/Central /etc/localtime && \
     echo "US/Central" > /etc/timezone
 RUN rm -rf /var/cache/apk/*
-RUN rm -rf /var/log/
 COPY laravel-cron /etc/cron.d/laravel-cron
 #ADD crontab /etc/cron.d/laravel-cron
 # Giving permission to crontab file
