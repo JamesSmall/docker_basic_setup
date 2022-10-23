@@ -1,0 +1,2 @@
+* * * * * cd /var/www/docked && /usr/local/bin/php artisan queue:work --stop-when-empty >> "/var/log/php/listener.log" &&
+* * * * * cd /var/www/docked && /usr/local/bin/php artisan schedule:run >> "/var/log/php/runner.log" &&

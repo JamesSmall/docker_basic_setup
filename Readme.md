@@ -9,7 +9,7 @@ docker-compose up -d --build
 
 ## startup
 ```bash
-docker-compose up -d --build
+docker-compose up -d
 ```
 
 

@@ -1,3 +1,5 @@
 /mysql-data
 /postgres-data
 /generic_box
+/php_log
+/php_laravel_apache_log
